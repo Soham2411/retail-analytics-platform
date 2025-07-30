@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+/* Force light mode always */
+body {
+  background-color: #ffffff;
+  color: #171717;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Override system dark mode preference */
+html {
+  color-scheme: light !important;
+}
+
+* {
+  color: inherit;
+}
+
+/* Make sure all components are visible in light mode */
+.bg-white {
+  background-color: #ffffff !important;
+}
+
+.text-gray-900 {
+  color: #111827 !important;
+}
+
+.text-gray-600 {
+  color: #4b5563 !important;
+}
+
+.text-gray-500 {
+  color: #6b7280 !important;
+}
+
+.border-gray-200 {
+  border-color: #e5e7eb !important;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb !important;
+}
+
+/* Override any potential dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+  }
+  
+  body {
+    background-color: #ffffff !important;
+    color: #171717 !important;
+  }
+  
+  * {
+    color: #171717 !important;
+  }
+}
