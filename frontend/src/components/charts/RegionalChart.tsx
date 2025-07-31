@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { apiClient, RegionalPerformance } from '@/lib/api';
+import { ApiClient, RegionData } from '@/lib/api';
 
 export default function RegionalChart() {
-  const [regions, setRegions] = useState<RegionalPerformance[]>([]);
+  const [regions, setRegions] = useState<RegionData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchRegions() {
       try {
-        const data = await apiClient.getRegionalPerformance();
-        setRegions(data);
+        const result = await ApiClient.getGeographicRegions();
+        setRegions(result.regions); // ✅ Access the regions array
       } catch (err) {
         console.error('Error fetching regional data:', err);
       } finally {
