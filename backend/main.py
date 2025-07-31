@@ -111,6 +111,15 @@ async def debug_database_url():
         "database_url_length": len(db_url) if db_url else 0,
         "database_url_host": db_url.split("@")[1].split(":")[0] if db_url and "@" in db_url else "not_found"
     }
+@app.get("/debug/database-test")
+async def debug_database_test():
+    try:
+        from app.models.database import engine
+        with engine.connect() as connection:
+            result = connection.execute("SELECT 1")
+            return {"status": "success", "test_query": "works"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
 
 if __name__ == "__main__":
     import uvicorn
