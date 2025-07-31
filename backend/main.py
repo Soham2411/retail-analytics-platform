@@ -101,6 +101,16 @@ async def get_top_products(limit: int = 10, db: Session = Depends(get_db)):
         return analytics_service.get_top_products(limit)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/debug/database-url")
+async def debug_database_url():
+    import os
+    db_url = os.getenv("DATABASE_URL")
+    return {
+        "database_url_exists": db_url is not None,
+        "database_url_length": len(db_url) if db_url else 0,
+        "database_url_host": db_url.split("@")[1].split(":")[0] if db_url and "@" in db_url else "not_found"
+    }
 
 if __name__ == "__main__":
     import uvicorn
