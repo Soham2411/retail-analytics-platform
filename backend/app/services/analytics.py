@@ -38,7 +38,7 @@ class AnalyticsService:
             
         return query
 
-    # ✅ ADD THESE METHODS - Main methods called by FastAPI
+    # ✅ Main methods called by FastAPI endpoints
     def get_kpis(self, filters: dict = None) -> dict:
         """Get KPIs - called by FastAPI endpoint"""
         return self.get_kpis_filtered(filters)
@@ -120,7 +120,7 @@ class AnalyticsService:
         """Get top products - called by FastAPI endpoint"""
         return self.get_top_products_filtered(filters, limit)
 
-    # ✅ EXISTING FILTERED METHODS - Keep these for advanced filtering
+    # ✅ Filtered methods for advanced filtering
     def get_kpis_filtered(self, filters: dict = None) -> dict:
         if filters is None:
             filters = {}
