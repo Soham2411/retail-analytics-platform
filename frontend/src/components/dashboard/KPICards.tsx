@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient, KPIs } from '@/lib/api';
+import { ApiClient } from '@/lib/api'; // ✅ FIX: Correct case and remove KPIs import
+
+// ✅ FIX: Define KPIs interface locally since it's not exported
+interface KPIs {
+  total_sales: number;
+  total_customers: number;
+  total_orders: number;
+  avg_profit_margin: number;
+  total_profit: number;
+}
 
 interface KPICardProps {
   title: string;
@@ -33,8 +42,10 @@ export default function KPICards() {
   useEffect(() => {
     async function fetchKPIs() {
       try {
-        const data = await apiClient.getKPIs();
-        setKpis(data);
+        const data = await ApiClient.getKpis(); // ✅ FIX: Correct method name and ApiClient
+        // Handle different response structures from your API
+        const kpiData = data.kpis || data.data || data;
+        setKpis(kpiData);
       } catch (err) {
         setError('Failed to load KPIs');
         console.error('Error fetching KPIs:', err);
