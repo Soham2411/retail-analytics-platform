@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { apiClient, SalesTrend } from '@/lib/api';
+import { ApiClient } from '@/lib/api';
+
+// ✅ FIX: Define the SalesTrend interface to match your API response structure
+interface SalesTrend {
+  month: string;
+  sales: number;
+  profit?: number;
+  orders?: number;
+  revenue?: number;
+}
 
 export default function SalesTrendsChart() {
   const [trends, setTrends] = useState<SalesTrend[]>([]);
@@ -12,8 +21,10 @@ export default function SalesTrendsChart() {
   useEffect(() => {
     async function fetchTrends() {
       try {
-        const data = await apiClient.getSalesTrends();
-        setTrends(data);
+        const data = await ApiClient.getSalesTrends();
+        // ✅ Handle the API response - it might be an array directly or wrapped in an object
+        const trendsData = Array.isArray(data) ? data : data.trends || data.data || [];
+        setTrends(trendsData);
       } catch (err) {
         setError('Failed to load sales trends');
         console.error('Error fetching trends:', err);
@@ -72,8 +83,10 @@ export default function SalesTrendsChart() {
           />
           <Tooltip 
             formatter={(value: number, name: string) => [
-              name === 'sales' || name === 'profit' ? formatCurrency(value) : value,
-              name === 'sales' ? 'Sales' : name === 'profit' ? 'Profit' : 'Orders'
+              name === 'sales' || name === 'profit' || name === 'revenue' ? formatCurrency(value) : value,
+              name === 'sales' ? 'Sales' : 
+              name === 'profit' ? 'Profit' : 
+              name === 'revenue' ? 'Revenue' : 'Orders'
             ]}
             labelFormatter={(label) => `Month: ${label}`}
           />
@@ -86,14 +99,26 @@ export default function SalesTrendsChart() {
             name="Sales"
             dot={{ fill: '#2563eb', strokeWidth: 2, r: 4 }}
           />
-          <Line 
-            type="monotone" 
-            dataKey="profit" 
-            stroke="#059669" 
-            strokeWidth={2}
-            name="Profit"
-            dot={{ fill: '#059669', strokeWidth: 2, r: 3 }}
-          />
+          {trends.some(t => t.profit !== undefined) && (
+            <Line 
+              type="monotone" 
+              dataKey="profit" 
+              stroke="#059669" 
+              strokeWidth={2}
+              name="Profit"
+              dot={{ fill: '#059669', strokeWidth: 2, r: 3 }}
+            />
+          )}
+          {trends.some(t => t.revenue !== undefined) && (
+            <Line 
+              type="monotone" 
+              dataKey="revenue" 
+              stroke="#dc2626" 
+              strokeWidth={2}
+              name="Revenue"
+              dot={{ fill: '#dc2626', strokeWidth: 2, r: 3 }}
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
     </div>
