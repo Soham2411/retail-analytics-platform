@@ -4,9 +4,17 @@ from sqlalchemy.orm import sessionmaker, relationship
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+# ✅ FIX: Only load .env in development, not in production
+if os.path.exists('.env'):
+    load_dotenv()
 
+# ✅ FIX: Get DATABASE_URL directly from environment (works on Render)
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+# ✅ FIX: Add error handling for missing DATABASE_URL
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set")
+
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
