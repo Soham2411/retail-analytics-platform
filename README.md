@@ -2,10 +2,7 @@
 
 Full-stack business intelligence dashboard with ML-powered analytics for retail businesses
 
-Show Image
-Show Image
-Show Image
-Show Image
+
 🚀 Overview
 RetailScope Analytics is a comprehensive business intelligence platform designed for retail businesses to gain deep insights into their operations. Built with modern technologies, it provides real-time analytics, forecasting, and actionable business intelligence through an intuitive dashboard interface.
 🎯 Key Features
