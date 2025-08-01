@@ -32,7 +32,20 @@ class AnalyticsService:
             raise FileNotFoundError(f"Could not find Sample - Superstore.csv in any of these locations: {possible_paths}")
         
         print(f"Loading CSV from: {csv_path}")
-        self.df = pd.read_csv(csv_path)
+        # Try different encodings to handle special characters
+        encodings_to_try = ['utf-8', 'latin-1', 'iso-8859-1', 'cp1252', 'utf-16']
+        
+        for encoding in encodings_to_try:
+            try:
+                self.df = pd.read_csv(csv_path, encoding=encoding)
+                print(f"Successfully loaded CSV with {encoding} encoding")
+                break
+            except UnicodeDecodeError:
+                print(f"Failed to load with {encoding} encoding, trying next...")
+                continue
+        else:
+            raise UnicodeDecodeError(f"Could not load CSV with any of these encodings: {encodings_to_try}")
+
         
         # Convert Order Date to datetime
         self.df['Order Date'] = pd.to_datetime(self.df['Order Date'])
