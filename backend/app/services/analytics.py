@@ -6,8 +6,32 @@ from typing import List, Dict
 class AnalyticsService:
     def __init__(self, db=None):
         # db parameter for compatibility with existing main.py
-        # Load CSV data once when service starts
-        csv_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'Sample - Superstore.csv')
+        # Try multiple possible CSV file locations based on your project structure
+        possible_paths = [
+            # From project root (where your CSV actually is)
+            os.path.join(os.path.dirname(__file__), '..', '..', '..', 'data', 'Sample - Superstore.csv'),
+            # Alternative paths
+            os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'Sample - Superstore.csv'),
+            os.path.join(os.path.dirname(__file__), '..', 'data', 'Sample - Superstore.csv'),
+            # Relative to current working directory
+            'data/Sample - Superstore.csv',
+            '../data/Sample - Superstore.csv',
+            '../../data/Sample - Superstore.csv',
+            # Working directory based
+            os.path.join(os.getcwd(), 'data', 'Sample - Superstore.csv'),
+            os.path.join(os.getcwd(), '..', 'data', 'Sample - Superstore.csv'),
+        ]
+        
+        csv_path = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                csv_path = path
+                break
+        
+        if csv_path is None:
+            raise FileNotFoundError(f"Could not find Sample - Superstore.csv in any of these locations: {possible_paths}")
+        
+        print(f"Loading CSV from: {csv_path}")
         self.df = pd.read_csv(csv_path)
         
         # Convert Order Date to datetime
