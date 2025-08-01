@@ -1,29 +1,26 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-from app.models.database import get_db
 from app.services.analytics import AnalyticsService
-from app.api import filtered_endpoints
 
 app = FastAPI(
     title="Retail Analytics API",
-    description="Full-stack retail analytics platform with ML capabilities",
+    description="Full-stack retail analytics platform with CSV data",
     version="1.0.0"
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000",
-    "https://retail-analytics-platform.vercel.app"
+    allow_origins=[
+        "http://localhost:3000",
+        "https://retail-analytics-platform.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include the filtered API endpoints
-app.include_router(filtered_endpoints.router, prefix="/api/filtered")
-
+# Initialize analytics service once (no database needed)
+analytics_service = AnalyticsService()
 
 @app.get("/")
 async def root():
@@ -31,6 +28,7 @@ async def root():
         "message": "🚀 Retail Analytics API is running!", 
         "status": "success",
         "version": "1.0.0",
+        "data_source": "CSV file",
         "endpoints": {
             "analytics": "/docs",
             "kpis": "/api/analytics/kpis",
@@ -44,82 +42,57 @@ async def health_check():
     return {
         "status": "healthy", 
         "service": "retail-analytics-api",
-        "database": "connected"
+        "data_source": "CSV loaded successfully"
     }
 
-# Analytics Endpoints
+# Analytics Endpoints (no database dependency)
 @app.get("/api/analytics/kpis")
-async def get_kpis(db: Session = Depends(get_db)):
+async def get_kpis():
     """Get key performance indicators"""
     try:
-        analytics_service = AnalyticsService(db)
         return analytics_service.get_kpis()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/analytics/sales-trends")
-async def get_sales_trends(db: Session = Depends(get_db)):
+async def get_sales_trends():
     """Get monthly sales trends"""
     try:
-        analytics_service = AnalyticsService(db)
         return analytics_service.get_sales_trends()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/analytics/regional-performance")
-async def get_regional_performance(db: Session = Depends(get_db)):
+async def get_regional_performance():
     """Get sales performance by region"""
     try:
-        analytics_service = AnalyticsService(db)
         return analytics_service.get_regional_performance()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/analytics/category-analysis")
-async def get_category_analysis(db: Session = Depends(get_db)):
+async def get_category_analysis():
     """Get product category performance"""
     try:
-        analytics_service = AnalyticsService(db)
         return analytics_service.get_category_analysis()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/analytics/customer-segments")
-async def get_customer_segments(db: Session = Depends(get_db)):
+async def get_customer_segments():
     """Get customer segment analysis"""
     try:
-        analytics_service = AnalyticsService(db)
         return analytics_service.get_customer_segments()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/analytics/top-products")
-async def get_top_products(limit: int = 10, db: Session = Depends(get_db)):
+async def get_top_products(limit: int = 10):
     """Get top performing products"""
     try:
-        analytics_service = AnalyticsService(db)
         return analytics_service.get_top_products(limit)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-@app.get("/debug/database-url")
-async def debug_database_url():
-    import os
-    db_url = os.getenv("DATABASE_URL")
-    return {
-        "database_url_exists": db_url is not None,
-        "database_url_length": len(db_url) if db_url else 0,
-        "database_url_host": db_url.split("@")[1].split(":")[0] if db_url and "@" in db_url else "not_found"
-    }
-@app.get("/debug/database-test")
-async def debug_database_test():
-    try:
-        from app.models.database import engine
-        with engine.connect() as connection:
-            result = connection.execute("SELECT 1")
-            return {"status": "success", "test_query": "works"}
-    except Exception as e:
-        return {"status": "error", "error": str(e)}
 
 if __name__ == "__main__":
     import uvicorn
