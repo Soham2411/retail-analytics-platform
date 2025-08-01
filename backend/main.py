@@ -37,6 +37,7 @@ async def root():
         }
     }
 
+@app.head("/api/health")
 @app.get("/api/health")
 async def health_check():
     return {
